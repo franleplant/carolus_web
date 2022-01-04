@@ -4,7 +4,7 @@ import Providers from "components/Provider";
 import Home from "pages/Home";
 import Composer from "pages/Composer";
 import Layout from "components/Layout";
-import NewsItem from 'pages/NewsItem'
+import NewsItem from "pages/NewsItem";
 
 export default function App() {
   return (

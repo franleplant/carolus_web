@@ -1,35 +1,29 @@
-import moment from "moment";
 //import "./App.css";
 
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
 
-import { useContractV1, useNews, useNewsForceUpdate } from "dal/contractV1";
+import { useNewsSupply, calcPaging } from "dal/contractV1";
+
+import NewsItemSummary from "components/NewsItemSummary";
 
 export default function Home() {
-  const { data: news = [], isLoading } = useNews();
+  const { isLoading, data } = useNewsSupply();
+  const supply = data?.supply || 0;
+
+  const pageItems = isLoading ? [] : calcPaging(supply - 1);
+  console.log(pageItems);
 
   return (
     <>
-      {isLoading && <p>Loading...</p>}
-      <List>
-        {[...news].reverse().map((news) => {
-          return (
-            <ListItem key={news.tokenId}>
-              <ListItemButton>
-                <ListItemText
-                  primary={`${news.content.slice(0, 50)}`}
-                  secondary={`by ${news.author} on ${moment(news.date).format(
-                    "HH:mm YYYY-MM-DD"
-                  )}`}
-                />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <List>
+          {pageItems.map((index) => {
+            return <NewsItemSummary key={index} index={index} />;
+          })}
+        </List>
+      )}
     </>
   );
 }
