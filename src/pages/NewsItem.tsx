@@ -1,5 +1,6 @@
+import moment from "moment";
 import { useNewsItem } from "dal/contractV1";
-import { Routes, Route, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import invariant from "ts-invariant";
 
 export default function NewsItem() {
@@ -7,7 +8,23 @@ export default function NewsItem() {
   const tokenIndex = params.tokenIndex;
   invariant(tokenIndex);
 
-  const { data: newsItem } = useNewsItem(Number(tokenIndex));
+  const { isLoading, data: newsItem } = useNewsItem(Number(tokenIndex));
 
-  return <p>{JSON.stringify(newsItem)}</p>;
+  if (isLoading || !newsItem) {
+    return <div>Loading...</div>;
+  }
+
+  const date = moment(newsItem.date).format("HH:mm YYYY-MM-DD");
+
+  return (
+    <div>
+      <pre>{newsItem.content}</pre>
+      <p>
+        by {newsItem.author} on {date}
+      </p>
+      <p>tokenId {newsItem.tokenId}</p>
+      <p>tokenIndex {newsItem.index}</p>
+      <p>URI {newsItem.tokenURI}</p>
+    </div>
+  );
 }

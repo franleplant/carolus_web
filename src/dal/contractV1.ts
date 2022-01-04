@@ -2,7 +2,13 @@ import { useMemo } from "react";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { range } from "lodash";
-import { useQuery, useQueryClient, UseQueryResult } from "react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "react-query";
 
 import CarolusNFTV1Artifact from "abi/CarolusNFTV1.json";
 import type { CarolusNFTV1 } from "typechain/CarolusNFTV1.d";
@@ -153,7 +159,28 @@ export function useNewsItem(index: number): UseQueryResult<INewsItem> {
   });
 }
 
-export function useNewsForceUpdate(): () => void {
+export function usePublishMint(): UseMutationResult<
+  unknown,
+  unknown,
+  { content: string }
+> {
+  const contract = useContractV1();
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries("news_supply");
+  return useMutation(
+    async ({ content }) => {
+      invariant(contract);
+      const tx = await contract.publishMint(content, {
+        value: ethers.constants.WeiPerEther.div(2),
+      });
+      const receipt = await tx.wait();
+      if (!receipt.status) {
+        throw new Error();
+      }
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("news_supply");
+      },
+    }
+  );
 }

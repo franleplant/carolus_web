@@ -11,7 +11,6 @@ export default function Home() {
   const navigate = useNavigate();
   const params = useParams();
   const page = Number(params.page || 0);
-  //const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
   const { isLoading, data } = useNewsSupply();

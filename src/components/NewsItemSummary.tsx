@@ -4,6 +4,8 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import IconButton from "@mui/material/IconButton";
+
 import { useNewsItem } from "dal/contractV1";
 
 export interface IProps {
@@ -16,7 +18,14 @@ export default function NewsItemSummary(props: IProps) {
   const { isLoading, data: news } = useNewsItem(props.index);
 
   return (
-    <ListItem>
+    <ListItem
+      secondaryAction={
+        <>
+          <IconButton edge="end">⬆️</IconButton>
+          <IconButton edge="end">⬇️</IconButton>
+        </>
+      }
+    >
       <ListItemButton onClick={() => navigate(`/news/${props.index}`)}>
         {!!news ? (
           <ListItemText
