@@ -133,6 +133,6 @@ export function useNews(): UseQueryResult<Array<INewsItem>> {
 }
 
 export function useNewsForceUpdate(): () => void {
-  const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries("news")
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries("news");
 }
