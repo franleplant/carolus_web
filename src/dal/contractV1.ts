@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
-import { range, keyBy } from "lodash";
+import { range } from "lodash";
 import { useQuery, useQueryClient, UseQueryResult } from "react-query";
 
 import CarolusNFTV1Artifact from "abi/CarolusNFTV1.json";
@@ -91,7 +91,6 @@ export async function getNewsItemMeta(
   return { tokenId, author, date };
 }
 
-// TODO unify with the below
 export async function getNewsItem(
   index: number,
   contract: CarolusNFTV1
@@ -109,40 +108,23 @@ export function calcPaging(
   page: number = 0,
   pageSize: number = 10
 ): Array<number> {
-  const start = supply - pageSize * page;
-  const end = supply - pageSize * (page + 1);
-  return range(Math.max(start, 0), Math.max(end, -1), -1);
+  if (supply === 0) {
+    return [];
+  }
+
+  const lastElement = supply - 1;
+
+  const start = lastElement - pageSize * page;
+  const end = lastElement - pageSize * (page + 1);
+  invariant(start >= end, "start should always be greater or equal to end");
+  if (start < 0 && end < 0) {
+    throw new Error(
+      `out of bound start=${start} end=${end} page=${page} pageSize=${pageSize} supply=${supply}`
+    );
+  }
+  const items = range(Math.max(start, 0), Math.max(end, -1), -1);
+  return items;
 }
-
-//export async function getNews({
-//contract,
-//page = 2,
-//pageSize = 10,
-//}: {
-//contract: CarolusNFTV1;
-//page?: number;
-//pageSize?: number;
-//}): Promise<Array<INewsItem>> {
-//const lastToken = (await contract.totalSupply()).toNumber();
-//// TODO move this logic into it's own fn
-//// TODO make the totalSupply available to the UI so we can show max pages
-//const start = lastToken - pageSize * page;
-//const end = lastToken - pageSize * (page + 1);
-//const pageItems = range(Math.max(start, 0), Math.max(end, -1), -1);
-//console.log(start, end, pageItems);
-//const news = await Promise.all(
-//range(lastToken).map(async (index) => {
-//const tokenId = await contract.tokenByIndex(index);
-//const [content, meta] = await Promise.all([
-//getNewsItemContent(tokenId.toNumber(), contract),
-//getNewsItemMeta(tokenId.toNumber(), contract),
-//]);
-//return { ...content, ...meta, index };
-//})
-//);
-
-//return news;
-//}
 
 export function useNewsSupply(): UseQueryResult<{ supply: number }> {
   const contract = useContractV1();
@@ -156,23 +138,6 @@ export function useNewsSupply(): UseQueryResult<{ supply: number }> {
     },
   });
 }
-
-// TODO be able to show news without loging in
-//export function useNews(): UseQueryResult<Array<INewsItem>> {
-//const contract = useContractV1();
-
-//return useQuery({
-//queryKey: "news",
-//enabled: !!contract,
-//queryFn: async () => {
-//// TODO invariant
-//if (!contract) {
-//throw new Error();
-//}
-//return getNews({ contract });
-//},
-//});
-//}
 
 export function useNewsItem(index: number): UseQueryResult<INewsItem> {
   const contract = useContractV1();
