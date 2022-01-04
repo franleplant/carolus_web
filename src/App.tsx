@@ -4,6 +4,7 @@ import Providers from "components/Provider";
 import Home from "pages/Home";
 import Composer from "pages/Composer";
 import Layout from "components/Layout";
+import NewsItem from 'pages/NewsItem'
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="news/:tokenIndex" element={<NewsItem />} />
             <Route path="compose" element={<Composer />} />
             {/*
           <Route path="teams" element={<Teams />}>
