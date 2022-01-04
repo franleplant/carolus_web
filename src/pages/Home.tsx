@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 import List from "@mui/material/List";
 
@@ -7,7 +8,10 @@ import { useNewsSupply, calcPaging } from "dal/contractV1";
 import NewsItemSummary from "components/NewsItemSummary";
 
 export default function Home() {
-  const [page, setPage] = useState(0);
+  const navigate = useNavigate();
+  const params = useParams();
+  const page = Number(params.page || 0);
+  //const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
   const { isLoading, data } = useNewsSupply();
@@ -16,8 +20,15 @@ export default function Home() {
   const pageItems = isLoading ? [] : calcPaging(supply, page, pageSize);
   const maxPages = Math.floor(supply / pageSize);
 
-  console.log(pageItems);
-  console.log(maxPages, supply);
+  function onNextPage() {
+    const nextPage = Math.min(page + 1, maxPages);
+    navigate(`/list/${nextPage}`);
+  }
+
+  function onPrevPage() {
+    const prevPage = Math.max(page - 1, 0);
+    navigate(`/list/${prevPage}`);
+  }
 
   return (
     <>
@@ -28,14 +39,8 @@ export default function Home() {
           <div>
             <span>Total {supply}</span>
             <span>Page {page}</span>
-            <button
-              onClick={() => setPage((page) => Math.min(page + 1, maxPages))}
-            >
-              next
-            </button>
-            <button onClick={() => setPage((page) => Math.max(page - 1, 0))}>
-              previous
-            </button>
+            <button onClick={onNextPage}>next</button>
+            <button onClick={onPrevPage}>previous</button>
           </div>
           <List>
             {pageItems.map((index) => {
