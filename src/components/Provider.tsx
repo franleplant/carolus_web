@@ -1,5 +1,7 @@
 import { Web3ReactProvider } from "@web3-react/core";
 import { QueryClient, QueryClientProvider } from "react-query";
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import getLibrary from "getLibrary";
 import { useEagerConnect } from "hooks/web3";
@@ -16,12 +18,21 @@ export interface IProps {
 
 export default function Providers(props: IProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <Web3Manager />
-        {props.children}
-      </Web3ReactProvider>
-    </QueryClientProvider>
+    <ThemeProvider
+      theme={createTheme({
+        palette: {
+          mode: "dark",
+        },
+      })}
+    >
+      <CssBaseline />
+      <QueryClientProvider client={queryClient}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <Web3Manager />
+          {props.children}
+        </Web3ReactProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

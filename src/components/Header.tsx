@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
@@ -13,11 +14,12 @@ import { useWeb3Session } from "hooks/web3";
 import { injected } from "connectors";
 
 export interface IProps {
-  onWrite: () => void;
+  //onWrite: () => void;
 }
 
 export default function Header(props: IProps) {
   const { activate, active, account } = useWeb3Session();
+  const navigate = useNavigate();
 
   async function onLogin() {
     try {
@@ -72,10 +74,10 @@ export default function Header(props: IProps) {
           ))}
         </Menu>
 
-        <Typography variant="h5" component="div">
+        <Typography variant="h5" component="div" onClick={() => navigate("/")}>
           Carolus
         </Typography>
-        <Button color="inherit" onClick={props.onWrite}>
+        <Button color="inherit" onClick={() => navigate("/compose")}>
           Write
         </Button>
         <div style={{ flexGrow: 1 }} />

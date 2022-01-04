@@ -1,32 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 import "./index.css";
 import App from "./App";
-import Providers from "components/Provider";
 import reportWebVitals from "./reportWebVitals";
-
-function AppWrapper() {
-  return (
-    <ThemeProvider
-      theme={createTheme({
-        palette: {
-          mode: "dark",
-        },
-      })}
-    >
-      <CssBaseline />
-      <Providers>
-        <App />
-      </Providers>
-    </ThemeProvider>
-  );
-}
 
 ReactDOM.render(
   <React.StrictMode>
-    <AppWrapper />
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

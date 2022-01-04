@@ -10,8 +10,6 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Button from "@mui/material/Button";
 
 export interface IProps {
-  open: boolean;
-  onClose: () => void;
   onPublish: (content: string) => Promise<void>;
 }
 export default function Composer(props: IProps) {
@@ -22,9 +20,9 @@ export default function Composer(props: IProps) {
 
   return (
     <Dialog
-      open={props.open}
+      open={true}
       keepMounted
-      onClose={props.onClose}
+      onClose={() => {}}
       aria-describedby="alert-dialog-slide-description"
     >
       <DialogTitle>{"Write your news"}</DialogTitle>
@@ -49,7 +47,7 @@ export default function Composer(props: IProps) {
       <DialogActions>
         <Button
           disabled={loading}
-          onClick={props.onClose}
+          onClick={() => {}}
           color="error"
           variant="contained"
         >
