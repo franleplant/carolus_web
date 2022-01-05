@@ -20,12 +20,9 @@ export default function Providers(props: IProps) {
   return (
     <ThemeProvider
       theme={createTheme({
-        palette: {
-          mode: "dark",
-        },
+        palette: {},
       })}
     >
-      <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <Web3Manager />

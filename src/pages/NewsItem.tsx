@@ -3,6 +3,8 @@ import { useNewsItem } from "dal/contractV1";
 import { useParams } from "react-router-dom";
 import invariant from "ts-invariant";
 
+// TODO up and down votes news contract state
+// TODO up and down vote news event
 export default function NewsItem() {
   const params = useParams();
   const tokenIndex = params.tokenIndex;

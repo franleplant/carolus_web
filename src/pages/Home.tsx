@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import List from "@mui/material/List";
-
 import { useNewsSupply, calcPaging } from "dal/contractV1";
 
 import NewsItemSummary from "components/NewsItemSummary";
+import Pagination from "components/Pagination";
 
 export default function Home() {
   const navigate = useNavigate();
   const params = useParams();
   const page = Number(params.page || 0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
 
   const { isLoading, data } = useNewsSupply();
   const supply = data?.supply || 0;
@@ -35,17 +34,18 @@ export default function Home() {
         <p>Loading...</p>
       ) : (
         <div>
-          <div>
-            <span>Total {supply}</span>
-            <span>Page {page}</span>
-            <button onClick={onNextPage}>next</button>
-            <button onClick={onPrevPage}>previous</button>
-          </div>
-          <List>
+          <Pagination
+            total={supply}
+            page={page}
+            maxPages={maxPages}
+            onNextPage={onNextPage}
+            onPrevPage={onPrevPage}
+          />
+          <div className="flex flex-wrap items-stretch justify-center mt-4 overflow-hidden gap-2">
             {pageItems.map((index) => {
               return <NewsItemSummary key={index} index={index} />;
             })}
-          </List>
+          </div>
         </div>
       )}
     </>

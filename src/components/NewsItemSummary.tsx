@@ -1,12 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import IconButton from "@mui/material/IconButton";
 
 import { useNewsItem } from "dal/contractV1";
+import Account from "components/Account";
+import React from "react";
 
 export interface IProps {
   /** token index */
@@ -18,26 +15,70 @@ export default function NewsItemSummary(props: IProps) {
   const { isLoading, data: news } = useNewsItem(props.index);
 
   return (
-    <ListItem
-      secondaryAction={
-        <>
-          <IconButton edge="end">⬆️</IconButton>
-          <IconButton edge="end">⬇️</IconButton>
-        </>
-      }
+    <div
+      onClick={() => navigate(`/news/${props.index}`)}
+      className="flex flex-col max-w-sm p-4 rounded cursor-pointer w-96 hover:drop-shadow-lg bg-paper_bg"
     >
-      <ListItemButton onClick={() => navigate(`/news/${props.index}`)}>
-        {!!news ? (
-          <ListItemText
-            primary={`${news.content.split("\n")?.[0]}...`}
-            secondary={`by ${news.author} on ${moment(news.date).format(
-              "HH:mm YYYY-MM-DD"
-            )}`}
-          />
-        ) : (
-          <p>Loading..</p>
-        )}
-      </ListItemButton>
-    </ListItem>
+      {!!news ? (
+        <Content content={news.content} author={news.author} date={news.date} />
+      ) : (
+        <p>Loading..</p>
+      )}
+    </div>
   );
+}
+
+const MAX_CONTENT_LEN = 40;
+
+export function truncateText(text: string, max: number): string {
+  if (text.length <= max) {
+    return text;
+  }
+
+  return `${text.slice(0, max)}...`;
+}
+
+export function Content({
+  content,
+  author,
+  date,
+}: {
+  content: string;
+  author: string;
+  date: Date;
+}) {
+  const lines = content.trim().split("\n");
+  const [title, ...body] = lines;
+
+  const bodyText = truncateText(body.join("\n").trim(), MAX_CONTENT_LEN);
+
+  return (
+    <>
+      <h3 className="">{title.charAt(0).toUpperCase() + title.slice(1)}</h3>
+      <pre className="mb-4">{bodyText}</pre>
+      <div className="mt-auto">
+        <p className="text-xs">
+          by{" "}
+          <Account account={author} firstChunkSize={10} secondChunkSize={10} />
+        </p>
+        <p className="text-xs">{`${moment(date).format("YYYY-MM-DD")}`}</p>
+      </div>
+    </>
+  );
+}
+
+export function HyperCased({ text, as }: { text: string; as: string }) {
+  if (text.length <= 1) {
+    return React.createElement(as, {}, [text]);
+  }
+  //const first = text[0]
+  const [first, ...rest] = text.split("");
+
+  const hyper = (
+    <span className="text-6xl" key="first">
+      {first.toUpperCase()}
+    </span>
+  );
+
+  return React.createElement(as, {}, [hyper, rest]);
 }
