@@ -4,6 +4,10 @@
 
 
 @layer base {
+  html, body, #root {
+    @apply h-full;
+  }
+
   body {
     @apply text-paper_fg;
     @apply bg-paper_bg;
@@ -11,6 +15,12 @@
 
   h1 {
     @apply text-8xl;
+    @apply italic;
+    @apply py-4;
+  }
+
+  h2 {
+    @apply text-6xl;
     @apply italic;
     @apply py-4;
   }

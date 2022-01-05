@@ -9,9 +9,9 @@ export default function Layout(props: IProps) {
     location.pathname === "/" || location.pathname.includes("list");
 
   return (
-    <div className="overflow-hidden">
+    <div className="flex flex-col h-full overflow-x-hidden">
       <Header />
-      <main className="">
+      <main className="flex flex-col flex-1">
         {isHome && <h1 className="text-center">Carolus</h1>}
         <Outlet />
       </main>

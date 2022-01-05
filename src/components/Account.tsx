@@ -1,23 +1,24 @@
+import React from "react";
+
 export interface IProps {
   account?: string;
+  as?: string;
   firstChunkSize?: number;
   secondChunkSize?: number;
+  className?: string;
 }
 
 // TODO ENS
 export default function Account(props: IProps) {
-  if (!props.account) {
+  const { account, firstChunkSize, secondChunkSize, ...rest } = props;
+  if (!account) {
     return null;
   }
 
-  return (
-    <span title={props.account} className="text-xs">
-      {shortenAddress(
-        props.account,
-        props.firstChunkSize,
-        props.secondChunkSize
-      )}
-    </span>
+  return React.createElement(
+    props.as || "span",
+    { className: "text-xs", title: account, ...rest },
+    [shortenAddress(account, firstChunkSize, secondChunkSize)]
   );
 }
 
@@ -26,7 +27,7 @@ export function shortenAddress(
   firstChunkSize = 7,
   secondChunkSize = 7
 ): string {
-  if (address.length >= firstChunkSize + secondChunkSize) {
+  if (firstChunkSize + secondChunkSize >= address.length) {
     return address;
   }
   return `${address.slice(0, firstChunkSize)}...${address.slice(

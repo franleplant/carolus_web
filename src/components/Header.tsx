@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { useWeb3Session } from "hooks/web3";
 import { injected } from "connectors";
+import Account from "components/Account";
 
 export interface IProps {}
 
@@ -26,10 +27,8 @@ export default function Header(props: IProps) {
       </Link>
       <div className="flex-1" />
 
-      {active ? (
-        <span className="p-4">
-          {`${account?.slice(0, 7)}...${account?.slice(-7)}`}
-        </span>
+      {active && account ? (
+        <Account account={account} className="p-4" secondChunkSize={10} />
       ) : (
         <button onClick={onLogin} className="p-4">
           Login

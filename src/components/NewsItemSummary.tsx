@@ -58,8 +58,7 @@ export function Content({
       <pre className="mb-4">{bodyText}</pre>
       <div className="mt-auto">
         <p className="text-xs">
-          by{" "}
-          <Account account={author} firstChunkSize={10} secondChunkSize={10} />
+          by <Account account={author} firstChunkSize={Infinity} />
         </p>
         <p className="text-xs">{`${moment(date).format("YYYY-MM-DD")}`}</p>
       </div>
