@@ -18,17 +18,21 @@ export default function Header(props: IProps) {
   }
 
   return (
-    <header className="flex w-full border-b-2 gap-2 border-b-paper_fg">
-      <Link to="/" className="p-4">
+    <header className="flex flex-wrap w-full border-b-2 border-b-paper_fg">
+      <Link to="/" className="p-4 text-base hover:drop-shadow-lg">
         Home
       </Link>
-      <Link to="/compose" className="p-4">
+      <Link to="/compose" className="p-4 text-base hover:drop-shadow-lg">
         Write
       </Link>
       <div className="flex-1" />
 
       {active && account ? (
-        <Account account={account} className="p-4" secondChunkSize={10} />
+        <Account
+          account={account}
+          className="p-4 text-sm leading-6"
+          firstChunkSize={Infinity}
+        />
       ) : (
         <button onClick={onLogin} className="p-4">
           Login
