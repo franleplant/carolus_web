@@ -1,3 +1,5 @@
+import Button from "components/Button";
+
 export interface IProps {
   total: number;
   page: number;
@@ -19,18 +21,8 @@ export default function Pagination({
       <span>
         Page {page}/{maxPages}
       </span>
-      <button
-        onClick={onPrevPage}
-        className="px-4 py-1 border rounded border-paper_fg"
-      >
-        Previous
-      </button>
-      <button
-        onClick={onNextPage}
-        className="px-4 py-1 border rounded border-paper_fg"
-      >
-        Next
-      </button>
+      <Button onClick={onPrevPage}>Previous</Button>
+      <Button onClick={onNextPage}>Next</Button>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function NewsItemSummary(props: IProps) {
   return (
     <div
       onClick={() => navigate(`/news/${props.index}`)}
-      className="flex flex-col max-w-sm p-4 rounded cursor-pointer w-96 hover:drop-shadow-lg bg-paper_bg"
+      className="flex flex-col max-w-sm p-4 overflow-hidden rounded cursor-pointer w-96 hover:drop-shadow-lg bg-paper_bg"
     >
       {!!news ? (
         <Content content={news.content} author={news.author} date={news.date} />
@@ -28,7 +28,7 @@ export default function NewsItemSummary(props: IProps) {
   );
 }
 
-const MAX_CONTENT_LEN = 40;
+const MAX_CONTENT_LEN = 100;
 
 export function truncateText(text: string, max: number): string {
   if (text.length <= max) {
@@ -55,7 +55,9 @@ export function Content({
   return (
     <>
       <h3 className="">{title.charAt(0).toUpperCase() + title.slice(1)}</h3>
-      <pre className="mb-4">{bodyText}</pre>
+      <pre className="mb-4 overflow-hidden whitespace-normal text-ellipsis">
+        {bodyText}
+      </pre>
       <div className="mt-auto">
         <p className="text-xs">
           by <Account account={author} firstChunkSize={Infinity} />

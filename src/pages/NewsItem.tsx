@@ -49,7 +49,9 @@ export function Content({
         </p>
       </div>
       <h2 className="pt-0">{title.charAt(0).toUpperCase() + title.slice(1)}</h2>
-      <pre className="flex-1 px-2 my-6">{bodyText}</pre>
+      <pre className="flex-1 px-2 my-6 overflow-hidden whitespace-normal">
+        {bodyText}
+      </pre>
       <div className="flex flex-row flex-wrap border-t gap-2 border-t-gray">
         {[`tokenId ${tokenId}`, `tokenIndex ${index}`, `${tokenURI}`].map(
           (tag, index) => (
