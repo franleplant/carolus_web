@@ -184,3 +184,72 @@ export function usePublishMint(): UseMutationResult<
     }
   );
 }
+
+export function useVotes(
+  tokenId?: number
+): UseQueryResult<[upvotes: number, downvotes: number]> {
+  const contract = useContractV1();
+
+  return useQuery({
+    queryKey: `votes/${tokenId}`,
+    enabled: !!contract && typeof tokenId !== "undefined",
+    queryFn: async () => {
+      invariant(contract);
+      invariant(typeof tokenId !== "undefined");
+      const [upvotes, downvotes] = await Promise.all([
+        contract.tokenToUpvotesMap(tokenId),
+        contract.tokenToDownvotesMap(tokenId),
+      ]);
+
+      return [upvotes.toNumber(), downvotes.toNumber()];
+    },
+  });
+}
+
+export function useUpvote(): UseMutationResult<
+  unknown,
+  unknown,
+  { tokenId: number }
+> {
+  const queryClient = useQueryClient();
+  const contract = useContractV1();
+  return useMutation(
+    async ({ tokenId }) => {
+      invariant(contract);
+      const tx = await contract.upvoteToken(tokenId);
+      const receipt = await tx.wait();
+      if (!receipt.status) {
+        throw new Error();
+      }
+    },
+    {
+      onSuccess: (_data, { tokenId }) => {
+        return queryClient.invalidateQueries(`votes/${tokenId}`);
+      },
+    }
+  );
+}
+
+export function useDownvote(): UseMutationResult<
+  unknown,
+  unknown,
+  { tokenId: number }
+> {
+  const queryClient = useQueryClient();
+  const contract = useContractV1();
+  return useMutation(
+    async ({ tokenId }) => {
+      invariant(contract);
+      const tx = await contract.downvoteToken(tokenId);
+      const receipt = await tx.wait();
+      if (!receipt.status) {
+        throw new Error();
+      }
+    },
+    {
+      onSuccess: (_data, { tokenId }) => {
+        return queryClient.invalidateQueries(`votes/${tokenId}`);
+      },
+    }
+  );
+}

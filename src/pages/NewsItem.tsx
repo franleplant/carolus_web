@@ -1,23 +1,35 @@
 import moment from "moment";
-import { INewsItem, useNewsItem } from "dal/contractV1";
+import {
+  INewsItem,
+  useNewsItem,
+  useVotes,
+  useUpvote,
+  useDownvote,
+} from "dal/contractV1";
 import { useParams } from "react-router-dom";
 import invariant from "ts-invariant";
 import { truncateText } from "components/NewsItemSummary";
 import Account from "components/Account";
+import Button from "components/Button";
 
-// TODO up and down votes news contract state
-// TODO up and down vote news event
 export default function NewsItem() {
   const params = useParams();
   const tokenIndex = params.tokenIndex;
   invariant(tokenIndex);
 
   const { isLoading, data: newsItem } = useNewsItem(Number(tokenIndex));
+  const { data: votes } = useVotes(newsItem?.tokenId);
+  const { mutateAsync: upvote } = useUpvote();
+  const { mutateAsync: downvote } = useDownvote();
 
   async function onUpvote() {
-    console.log("upvote");
+    invariant(newsItem);
+    await upvote({ tokenId: newsItem.tokenId });
   }
-  async function onDownvote() {}
+  async function onDownvote() {
+    invariant(newsItem);
+    await downvote({ tokenId: newsItem.tokenId });
+  }
 
   if (isLoading || !newsItem) {
     return <div>Loading...</div>;
@@ -25,7 +37,12 @@ export default function NewsItem() {
 
   return (
     <div className="flex-1 flex flex-col md:w-[60rem] p-4 mx-auto">
-      <Content news={newsItem} onUpvote={onUpvote} onDownvote={onDownvote} />
+      <Content
+        news={newsItem}
+        votes={votes}
+        onUpvote={onUpvote}
+        onDownvote={onDownvote}
+      />
     </div>
   );
 }
@@ -34,6 +51,7 @@ export function Content(props: {
   news: INewsItem;
   onUpvote: () => Promise<void>;
   onDownvote: () => Promise<void>;
+  votes?: [upvotes: number, downvotes: number];
 }) {
   const { content, author, date, tokenId, index, tokenURI } = props.news;
   const lines = content.trim().split("\n");
@@ -49,19 +67,7 @@ export function Content(props: {
       <div className="flex flex-row items-center overflow-hidden gap-4">
       </div>
         */}
-      <div className="flex flex-row flex-wrap py-2 border-b gap-x-4 gap-y-1 border-y border-y-paper_fg ">
-        <div className="flex flex-row -ml-2">
-          <button className="px-2 hover:bg-gray-300" onClick={props.onUpvote}>
-            🔺
-          </button>
-          <button className="px-2 hover:bg-gray-300" onClick={props.onDownvote}>
-            🔻
-          </button>
-        </div>
-        <p className="text-xs leading-6">X votes</p>
-        <p className="text-xs leading-6">
-          published on {`${moment(date).format("YYYY-MM-DD")}`}
-        </p>
+      <div className="flex flex-row flex-wrap items-baseline py-2 border-b gap-x-4 gap-y-1 border-y border-y-paper_fg">
         <p className="text-xs leading-6">
           by{" "}
           <Account
@@ -70,21 +76,31 @@ export function Content(props: {
             secondChunkSize={10}
           />
         </p>
+        <div className="flex flex-row gap-1">
+          <Button onClick={props.onUpvote}>Upvote</Button>
+          <Button onClick={props.onDownvote}>Downvote</Button>
+        </div>
+        <p className="text-xs leading-6">{`${
+          props.votes?.[0] || "?"
+        } upvotes`}</p>
+        <p className="text-xs leading-6">{`${
+          props.votes?.[1] || "?"
+        } downvotes`}</p>
+        <p className="text-xs leading-6">
+          published on {`${moment(date).format("YYYY-MM-DD")}`}
+        </p>
       </div>
       <pre className="flex-1 px-2 my-6 overflow-hidden whitespace-normal">
         {bodyText}
       </pre>
       <div className="flex flex-row flex-wrap border-t gap-2 border-t-gray-300">
-        {[
-          `X votes`,
-          `tokenId ${tokenId}`,
-          `tokenIndex ${index}`,
-          `${tokenURI}`,
-        ].map((tag, index) => (
-          <span key={index} className="px-2 py-2 text-sm">
-            {tag}
-          </span>
-        ))}
+        {[`tokenId ${tokenId}`, `tokenIndex ${index}`, `${tokenURI}`].map(
+          (tag, index) => (
+            <span key={index} className="px-2 py-2 text-sm">
+              {tag}
+            </span>
+          )
+        )}
       </div>
     </>
   );
