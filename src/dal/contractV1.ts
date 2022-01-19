@@ -68,6 +68,7 @@ export async function getNewsItemContent(
   const [content, tokenURI] = await Promise.all([
     contract.contentMap(tokenId),
     contract.tokenURI(tokenId),
+    contract.tokenToDownvotesMap(tokenId),
   ]);
 
   return { tokenId, content, tokenURI };
@@ -206,6 +207,33 @@ export function useVotes(
   });
 }
 
+export function useUserDidVote(
+  userAddress: string | undefined,
+  tokenId: number | undefined
+): UseQueryResult<[didUpvote: boolean, didDownvote: boolean]> {
+  const contract = useContractV1();
+
+  return useQuery({
+    queryKey: ["user-votes", tokenId, userAddress],
+    enabled:
+      !!contract &&
+      typeof tokenId !== "undefined" &&
+      userAddress !== "undefined",
+    queryFn: async () => {
+      invariant(contract);
+      invariant(typeof tokenId !== "undefined");
+      invariant(typeof userAddress !== "undefined");
+
+      const [didUpvote, didDownvote] = await Promise.all([
+        contract.tokenToUpvoterAddressMap(tokenId, userAddress),
+        contract.tokenToDownvoterAddressMap(tokenId, userAddress),
+      ]);
+
+      return [didUpvote, didDownvote];
+    },
+  });
+}
+
 export function useUpvote(): UseMutationResult<
   unknown,
   unknown,
@@ -224,7 +252,10 @@ export function useUpvote(): UseMutationResult<
     },
     {
       onSuccess: (_data, { tokenId }) => {
-        return queryClient.invalidateQueries(`votes/${tokenId}`);
+        return Promise.all([
+          queryClient.invalidateQueries(`votes/${tokenId}`),
+          queryClient.invalidateQueries(["user-votes", tokenId]),
+        ]);
       },
     }
   );
