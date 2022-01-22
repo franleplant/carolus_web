@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { range } from "lodash";
@@ -15,22 +15,98 @@ import type { CarolusNFTV1 } from "typechain/CarolusNFTV1.d";
 import { useWeb3Session } from "hooks/web3";
 import invariant from "ts-invariant";
 
-// TODO make this work without login to metamask
-export function useContractV1(): CarolusNFTV1 | null {
-  const contractAddress = process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS;
-  if (!contractAddress) {
-    throw new Error("missing process.env.REACT_APP_NOT_SECRET_CODE");
-  }
-  const { account, library } = useWeb3Session();
+if (
+  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_LOCALHOST ||
+  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON ||
+  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON_MUMBAI
+) {
+  throw new Error("missing envs");
+}
 
-  return useMemo(() => {
-    if (!library) {
-      return null;
+// TODO this is aweful, make it better
+export const CONTRACT_ADDRESS: Record<number, string> = {
+  137: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON,
+  80001: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON_MUMBAI,
+  31337: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_LOCALHOST,
+};
+
+function getContractAddress(chainId?: number): string {
+  if (!chainId) {
+    return CONTRACT_ADDRESS[137];
+  }
+
+  const address = CONTRACT_ADDRESS[chainId];
+  if (!address) {
+    throw new Error("bad chainId");
+  }
+
+  return address;
+}
+
+// TODO abstract
+const polygonProvider = new ethers.providers.JsonRpcProvider(
+  { url: "https://polygon-rpc.com" },
+  137
+);
+const mumbaiProvider = new ethers.providers.JsonRpcProvider(
+  {
+    url: "https://polygon-mumbai.g.alchemy.com/v2/JJrysE52HncyKHPBFiDN__ZRH-BvPPqw",
+  },
+  80001
+);
+const localhostProvider = new ethers.providers.JsonRpcProvider(
+  {
+    url: "http://127.0.0.1:8545",
+  },
+  31337
+);
+
+function getProvider(chainId?: number): ethers.providers.JsonRpcProvider {
+  switch (chainId) {
+    case 137: {
+      console.log("using polygon");
+      return polygonProvider;
+    }
+    case 80001: {
+      console.log("using mumbai");
+      return mumbaiProvider;
+    }
+    case 31337: {
+      console.log("using localhost");
+      return localhostProvider;
     }
 
+    default: {
+      console.log("using default: polygon");
+      return polygonProvider;
+    }
+  }
+}
+
+const DEFAULT_CHAIN_ID = 80001;
+
+//export function usePrevious<T>(value: T): T | undefined {
+//const valueRef = useRef(value)
+//useEffect(() => {
+//valueRef.current = value
+//}, [value])
+
+//return valueRef.current
+//}
+
+export function useContractV1(): CarolusNFTV1 | null {
+  const { account, library, chainId = DEFAULT_CHAIN_ID } = useWeb3Session();
+  const contractAddress = getContractAddress(chainId);
+
+  //const prevChainId = usePrevious(chainId)
+  //const prevAccount = usePrevious(account)
+  //const
+
+  return useMemo(() => {
     try {
-      let signerOrProvider: ethers.Signer | ethers.providers.Provider = library;
-      if (account) {
+      let signerOrProvider: ethers.Signer | ethers.providers.Provider =
+        getProvider(chainId);
+      if (account && library) {
         signerOrProvider = library.getSigner(account).connectUnchecked();
       }
       const contract = new Contract(
@@ -43,59 +119,17 @@ export function useContractV1(): CarolusNFTV1 | null {
       console.log("error instantiating contract", err);
       return null;
     }
-  }, [account, contractAddress, library]);
+  }, [chainId, account, contractAddress, library]);
 }
 
-export interface INewsItemContent {
+export interface INewsItem {
+  /** the ERC271Enumerable index */
+  index: number;
   tokenId: number;
   content: string;
   tokenURI: string;
-}
-export interface INewsItemMeta {
-  tokenId: number;
   author: string;
   date: Date;
-}
-export interface INewsItem extends INewsItemContent, INewsItemMeta {
-  /** the ERC271Enumerable index */
-  index: number;
-}
-
-export async function getNewsItemContent(
-  tokenId: number,
-  contract: CarolusNFTV1
-): Promise<INewsItemContent> {
-  const [content, tokenURI] = await Promise.all([
-    contract.contentMap(tokenId),
-    contract.tokenURI(tokenId),
-    contract.tokenToDownvotesMap(tokenId),
-  ]);
-
-  return { tokenId, content, tokenURI };
-}
-
-export async function getNewsItemMeta(
-  tokenId: number,
-  contract: CarolusNFTV1
-): Promise<INewsItemMeta> {
-  // get the token creation event
-  const filter = contract.filters.Transfer(
-    "0x0000000000000000000000000000000000000000",
-    null,
-    tokenId
-  );
-  //contract.on(filter, (from, to, tokenId) => {
-  //console.log("got a new pub", from, to, tokenId);
-  //});
-  const events = await contract.queryFilter(filter);
-  invariant(events.length === 1, "token creation event not found");
-  const event = events[0];
-
-  const author = event.args.to;
-  const block = await event.getBlock();
-  const date = new Date(block.timestamp * 1000);
-
-  return { tokenId, author, date };
 }
 
 export async function getNewsItem(
@@ -103,11 +137,22 @@ export async function getNewsItem(
   contract: CarolusNFTV1
 ): Promise<INewsItem> {
   const tokenId = await contract.tokenByIndex(index);
-  const [content, meta] = await Promise.all([
-    getNewsItemContent(tokenId.toNumber(), contract),
-    getNewsItemMeta(tokenId.toNumber(), contract),
+
+  const [content, tokenURI, author, timestamp] = await Promise.all([
+    contract.contentMap(tokenId),
+    contract.tokenURI(tokenId),
+    contract.tokenToAuthorMap(tokenId),
+    contract.tokenToTimestampMap(tokenId),
   ]);
-  return { ...content, ...meta, index };
+
+  return {
+    index,
+    tokenId: tokenId.toNumber(),
+    content,
+    tokenURI,
+    author,
+    date: new Date(timestamp.toNumber() * 1000),
+  };
 }
 
 export function calcPaging(

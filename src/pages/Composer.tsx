@@ -2,8 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useContractV1, usePublishMint } from "dal/contractV1";
 import Button from "components/Button";
+import { useWeb3Session } from "hooks/web3";
 
 export default function ComposerPage() {
+  const [publishing, setPublishing] = useState(false);
+  const { active, account } = useWeb3Session();
   const contract = useContractV1();
   const { mutateAsync: publishMint } = usePublishMint();
   const [content, setContent] = useState("");
@@ -14,12 +17,20 @@ export default function ComposerPage() {
       throw new Error("contract is undef");
     }
 
+    setPublishing(true);
+
     try {
       await publishMint({ content });
       navigate("/");
     } catch (err) {
       console.error(err);
+    } finally {
+      setPublishing(false);
     }
+  }
+
+  if (!active || !account) {
+    return <div>Please Login</div>;
   }
 
   return (
@@ -45,8 +56,8 @@ export default function ComposerPage() {
           rows={15}
           className="w-full p-4 font-mono rounded-none rounded drop-shadow-md bg-paper_bg outline-1 outline-paper_fg"
         />
-        <Button type="submit" className="">
-          Submit
+        <Button type="submit" className="" disabled={publishing}>
+          {publishing ? "Submiting..." : "Submit"}
         </Button>
       </form>
     </div>

@@ -31,6 +31,7 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
     "censure(uint256)": FunctionFragment;
     "contentMap(uint256)": FunctionFragment;
     "downvoteToken(uint256)": FunctionFragment;
+    "emergencyCensure(uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
@@ -52,8 +53,10 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
     "symbol()": FunctionFragment;
     "tokenByIndex(uint256)": FunctionFragment;
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
+    "tokenToAuthorMap(uint256)": FunctionFragment;
     "tokenToDownvoterAddressMap(uint256,address)": FunctionFragment;
     "tokenToDownvotesMap(uint256)": FunctionFragment;
+    "tokenToTimestampMap(uint256)": FunctionFragment;
     "tokenToUpvoterAddressMap(uint256,address)": FunctionFragment;
     "tokenToUpvotesMap(uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
@@ -92,6 +95,10 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "downvoteToken",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "emergencyCensure",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -161,11 +168,19 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "tokenToAuthorMap",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenToDownvoterAddressMap",
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenToDownvotesMap",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tokenToTimestampMap",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -214,6 +229,10 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "contentMap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "downvoteToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "emergencyCensure",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -274,11 +293,19 @@ interface CarolusNFTV1Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "tokenToAuthorMap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "tokenToDownvoterAddressMap",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "tokenToDownvotesMap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenToTimestampMap",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -444,6 +471,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    emergencyCensure(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -550,6 +582,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    tokenToAuthorMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     tokenToDownvoterAddressMap(
       arg0: BigNumberish,
       arg1: string,
@@ -557,6 +594,11 @@ export class CarolusNFTV1 extends BaseContract {
     ): Promise<[boolean]>;
 
     tokenToDownvotesMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    tokenToTimestampMap(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -627,6 +669,11 @@ export class CarolusNFTV1 extends BaseContract {
   contentMap(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   downvoteToken(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  emergencyCensure(
     tokenId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -734,6 +781,11 @@ export class CarolusNFTV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  tokenToAuthorMap(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   tokenToDownvoterAddressMap(
     arg0: BigNumberish,
     arg1: string,
@@ -741,6 +793,11 @@ export class CarolusNFTV1 extends BaseContract {
   ): Promise<boolean>;
 
   tokenToDownvotesMap(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  tokenToTimestampMap(
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -802,6 +859,11 @@ export class CarolusNFTV1 extends BaseContract {
     contentMap(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     downvoteToken(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    emergencyCensure(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -901,6 +963,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    tokenToAuthorMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     tokenToDownvoterAddressMap(
       arg0: BigNumberish,
       arg1: string,
@@ -908,6 +975,11 @@ export class CarolusNFTV1 extends BaseContract {
     ): Promise<boolean>;
 
     tokenToDownvotesMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenToTimestampMap(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1101,6 +1173,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    emergencyCensure(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -1210,6 +1287,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    tokenToAuthorMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tokenToDownvoterAddressMap(
       arg0: BigNumberish,
       arg1: string,
@@ -1217,6 +1299,11 @@ export class CarolusNFTV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenToDownvotesMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenToTimestampMap(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1296,6 +1383,11 @@ export class CarolusNFTV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     downvoteToken(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    emergencyCensure(
       tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1411,6 +1503,11 @@ export class CarolusNFTV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    tokenToAuthorMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     tokenToDownvoterAddressMap(
       arg0: BigNumberish,
       arg1: string,
@@ -1418,6 +1515,11 @@ export class CarolusNFTV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenToDownvotesMap(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenToTimestampMap(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
