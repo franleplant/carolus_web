@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
+import invariant from "ts-invariant";
 import { ethers } from "ethers";
-import { Contract } from "@ethersproject/contracts";
 import { range } from "lodash";
 import {
   useMutation,
@@ -10,80 +9,8 @@ import {
   UseQueryResult,
 } from "react-query";
 
-import CarolusNFTV1Artifact from "abi/CarolusNFTV1.json";
 import type { CarolusNFTV1 } from "typechain/CarolusNFTV1.d";
-import { useWeb3Session } from "hooks/web3";
-import invariant from "ts-invariant";
-
-if (
-  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_LOCALHOST ||
-  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON ||
-  !process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON_MUMBAI
-) {
-  throw new Error("missing envs");
-}
-
-// TODO this is aweful, make it better
-export const CONTRACT_ADDRESS: Record<number, string> = {
-  137: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON,
-  80001: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_POLYGON_MUMBAI,
-  31337: process.env.REACT_APP_CAROLUS_V1_CONTRACT_ADDRESS_LOCALHOST,
-};
-
-function getContractAddress(chainId?: number): string {
-  if (!chainId) {
-    return CONTRACT_ADDRESS[137];
-  }
-
-  const address = CONTRACT_ADDRESS[chainId];
-  if (!address) {
-    throw new Error("bad chainId");
-  }
-
-  return address;
-}
-
-// TODO abstract
-const polygonProvider = new ethers.providers.JsonRpcProvider(
-  { url: "https://polygon-rpc.com" },
-  137
-);
-const mumbaiProvider = new ethers.providers.JsonRpcProvider(
-  {
-    url: "https://polygon-mumbai.g.alchemy.com/v2/JJrysE52HncyKHPBFiDN__ZRH-BvPPqw",
-  },
-  80001
-);
-const localhostProvider = new ethers.providers.JsonRpcProvider(
-  {
-    url: "http://127.0.0.1:8545",
-  },
-  31337
-);
-
-function getProvider(chainId?: number): ethers.providers.JsonRpcProvider {
-  switch (chainId) {
-    case 137: {
-      console.log("using polygon");
-      return polygonProvider;
-    }
-    case 80001: {
-      console.log("using mumbai");
-      return mumbaiProvider;
-    }
-    case 31337: {
-      console.log("using localhost");
-      return localhostProvider;
-    }
-
-    default: {
-      console.log("using default: polygon");
-      return polygonProvider;
-    }
-  }
-}
-
-const DEFAULT_CHAIN_ID = 80001;
+import { useContractV1 } from "hooks/contract";
 
 //export function usePrevious<T>(value: T): T | undefined {
 //const valueRef = useRef(value)
@@ -93,34 +20,6 @@ const DEFAULT_CHAIN_ID = 80001;
 
 //return valueRef.current
 //}
-
-export function useContractV1(): CarolusNFTV1 | null {
-  const { account, library, chainId = DEFAULT_CHAIN_ID } = useWeb3Session();
-  const contractAddress = getContractAddress(chainId);
-
-  //const prevChainId = usePrevious(chainId)
-  //const prevAccount = usePrevious(account)
-  //const
-
-  return useMemo(() => {
-    try {
-      let signerOrProvider: ethers.Signer | ethers.providers.Provider =
-        getProvider(chainId);
-      if (account && library) {
-        signerOrProvider = library.getSigner(account).connectUnchecked();
-      }
-      const contract = new Contract(
-        contractAddress,
-        CarolusNFTV1Artifact.abi,
-        signerOrProvider
-      );
-      return contract as CarolusNFTV1;
-    } catch (err) {
-      console.log("error instantiating contract", err);
-      return null;
-    }
-  }, [chainId, account, contractAddress, library]);
-}
 
 export interface INewsItem {
   /** the ERC271Enumerable index */
@@ -184,7 +83,7 @@ export function useNewsSupply(): UseQueryResult<{ supply: number }> {
     queryKey: "news_supply",
     enabled: !!contract,
     queryFn: async () => {
-      invariant(contract);
+      invariant(contract, "contract is not defined");
       const supply = (await contract.totalSupply()).toNumber();
       return { supply };
     },
@@ -199,7 +98,7 @@ export function useNewsItem(index: number): UseQueryResult<INewsItem> {
     enabled: !!contract,
     staleTime: Infinity,
     queryFn: async () => {
-      invariant(contract);
+      invariant(contract, "contract is not defined");
       return getNewsItem(index, contract);
     },
   });
@@ -214,7 +113,7 @@ export function usePublishMint(): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation(
     async ({ content }) => {
-      invariant(contract);
+      invariant(contract, "contract is not defined");
       const tx = await contract.publishMint(content, {
         value: ethers.constants.WeiPerEther.div(2),
       });
@@ -240,8 +139,8 @@ export function useVotes(
     queryKey: `votes/${tokenId}`,
     enabled: !!contract && typeof tokenId !== "undefined",
     queryFn: async () => {
-      invariant(contract);
-      invariant(typeof tokenId !== "undefined");
+      invariant(contract, "contract is not defined");
+      invariant(typeof tokenId !== "undefined", "tokenId is undefined");
       const [upvotes, downvotes] = await Promise.all([
         contract.tokenToUpvotesMap(tokenId),
         contract.tokenToDownvotesMap(tokenId),
@@ -260,14 +159,14 @@ export function useUserDidVote(
 
   return useQuery({
     queryKey: ["user-votes", tokenId, userAddress],
-    enabled:
-      !!contract &&
-      typeof tokenId !== "undefined" &&
-      userAddress !== "undefined",
+    enabled: !!contract && !!userAddress && typeof tokenId !== "undefined",
     queryFn: async () => {
-      invariant(contract);
-      invariant(typeof tokenId !== "undefined");
-      invariant(typeof userAddress !== "undefined");
+      invariant(contract, "contract is not defined");
+      invariant(typeof tokenId !== "undefined", "token id is not defined");
+      invariant(
+        typeof userAddress !== "undefined",
+        "user address is not defined"
+      );
 
       const [didUpvote, didDownvote] = await Promise.all([
         contract.tokenToUpvoterAddressMap(tokenId, userAddress),
@@ -288,7 +187,7 @@ export function useUpvote(): UseMutationResult<
   const contract = useContractV1();
   return useMutation(
     async ({ tokenId }) => {
-      invariant(contract);
+      invariant(contract, "contract is not defined");
       const tx = await contract.upvoteToken(tokenId);
       const receipt = await tx.wait();
       if (!receipt.status) {

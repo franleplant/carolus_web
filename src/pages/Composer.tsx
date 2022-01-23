@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useContractV1, usePublishMint } from "dal/contractV1";
+import { usePublishMint } from "dal/contractV1";
 import Button from "components/Button";
 import { useWeb3Session } from "hooks/web3";
+import { useContractV1 } from "hooks/contract";
 
 export default function ComposerPage() {
   const [publishing, setPublishing] = useState(false);

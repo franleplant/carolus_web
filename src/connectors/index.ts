@@ -1,4 +1,4 @@
-import { Web3Provider } from "@ethersproject/providers";
+//import { Web3Provider } from "@ethersproject/providers";
 //import { SafeAppConnector } from '@gnosis.pm/safe-apps-web3-react'
 import { InjectedConnector } from "@web3-react/injected-connector";
 //import { PortisConnector } from '@web3-react/portis-connector'
@@ -8,8 +8,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 
 import {
   ALL_SUPPORTED_CHAIN_IDS,
-  INFURA_NETWORK_URLS,
-  SupportedChainId,
+  //SupportedChainId,
 } from "constants/chains";
 //import getLibrary from 'getLibrary'
 //import { FortmaticConnector } from './Fortmatic'

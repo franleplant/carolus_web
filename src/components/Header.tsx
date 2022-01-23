@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { useWeb3Session } from "hooks/web3";
+import { useChain, useWeb3Session } from "hooks/web3";
 import { injected } from "connectors";
 import Account from "components/Account";
 
@@ -8,6 +8,7 @@ export interface IProps {}
 
 export default function Header(props: IProps) {
   const { activate, active, account } = useWeb3Session();
+  const chain = useChain();
 
   async function onLogin() {
     try {
@@ -27,6 +28,7 @@ export default function Header(props: IProps) {
       </Link>
       <div className="flex-1" />
 
+      <span className="p-4 text-sm leading-6">{chain.label}</span>
       {active && account ? (
         <Account
           account={account}
