@@ -44,7 +44,7 @@ export default function NewsItem() {
   }
 
   return (
-    <div className="flex-1 flex flex-col md:w-[60rem] p-4 mx-auto">
+    <div className="flex-1 flex flex-col md:w-[50rem] p-4 mx-auto max-w-full">
       <Content
         news={newsItem}
         votes={votes}
@@ -113,7 +113,7 @@ export function Content(props: {
           published on {`${moment(date).format("YYYY-MM-DD")}`}
         </p>
       </div>
-      <pre className="flex-1 px-2 my-6 overflow-hidden whitespace-normal">
+      <pre className="flex-1 px-2 my-6 overflow-hidden break-words whitespace-pre-line">
         {bodyText}
       </pre>
       <div className="flex flex-row flex-wrap border-t gap-2 border-t-gray-300">

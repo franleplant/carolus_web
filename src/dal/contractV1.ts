@@ -107,16 +107,14 @@ export function useNewsItem(index: number): UseQueryResult<INewsItem> {
 export function usePublishMint(): UseMutationResult<
   unknown,
   unknown,
-  { content: string }
+  { content: string; value: ethers.BigNumberish }
 > {
   const { contractV1: contract } = useContractContext();
   const queryClient = useQueryClient();
   return useMutation(
-    async ({ content }) => {
+    async ({ content, value }) => {
       invariant(contract, "contract is not defined");
-      const tx = await contract.publishMint(content, {
-        value: ethers.constants.WeiPerEther.div(2),
-      });
+      const tx = await contract.publishMint(content, { value });
       const receipt = await tx.wait();
       if (!receipt.status) {
         throw new Error();

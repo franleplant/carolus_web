@@ -1,9 +1,24 @@
+import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePublishMint } from "dal/contractV1";
 import Button from "components/Button";
 import { useWeb3Session } from "hooks/web3";
 import { useContractV1 } from "hooks/contract";
+
+const TOKEN_MINT_PRICE = process.env.REACT_APP_TOKEN_MINT_PRICE;
+if (!TOKEN_MINT_PRICE) {
+  throw new Error(`missing TOKEN_MINT_PRICE`);
+}
+
+const TOKEN_MINT_PRICE_N = Number(TOKEN_MINT_PRICE);
+
+let VALUE_MINT: ethers.BigNumberish;
+if (TOKEN_MINT_PRICE_N < 1) {
+  VALUE_MINT = ethers.constants.WeiPerEther.div(1 / TOKEN_MINT_PRICE_N);
+} else {
+  VALUE_MINT = ethers.constants.WeiPerEther.mul(TOKEN_MINT_PRICE_N);
+}
 
 export default function ComposerPage() {
   const [publishing, setPublishing] = useState(false);
@@ -21,7 +36,7 @@ export default function ComposerPage() {
     setPublishing(true);
 
     try {
-      await publishMint({ content });
+      await publishMint({ content, value: VALUE_MINT });
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -43,6 +58,8 @@ export default function ComposerPage() {
         be interpreted as the title and there is no size limit but you would
         need to pay for it.
       </p>
+
+      <p>Price: {ethers.utils.formatEther(VALUE_MINT)} Matic</p>
 
       <form
         onSubmit={(e) => {
