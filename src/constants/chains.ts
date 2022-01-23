@@ -27,7 +27,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: Array<SupportedChainId> = Object.values(
   SupportedChainId
 ).filter((id) => typeof id === "number") as Array<SupportedChainId>;
 
-export const DEFAULT_CHAIN: SupportedChainId = SupportedChainId.POLYGON_MUMBAI;
+export const DEFAULT_CHAIN: SupportedChainId = SupportedChainId.POLYGON;
 
 export interface IChainInfo {
   id: SupportedChainId;
@@ -88,6 +88,8 @@ export function getChain(chainId?: string | number): IChainInfo {
   const chain =
     CHAIN_INFO[Number(chainId) as SupportedChainId] ||
     CHAIN_INFO[DEFAULT_CHAIN];
+
+  console.log("using chain", chain, chainId);
 
   return chain;
 }

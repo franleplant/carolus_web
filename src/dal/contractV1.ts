@@ -20,6 +20,12 @@ import { useContractContext } from "components/Provider/Contract";
 
 //return valueRef.current
 //}
+//
+// TODO make all queries depenend on the chainId so that if it changes it cancels
+// TODO hookup everything to cancel the underlying fetches
+// https://react-query.tanstack.com/guides/query-cancellation
+// if the contract interactions cannot be canceled then we should
+// setup the app to wait for a few seconds until the actual chain has settled
 
 export interface INewsItem {
   /** the ERC271Enumerable index */

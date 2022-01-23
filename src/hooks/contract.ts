@@ -18,6 +18,8 @@ export function useContractV1(): CarolusNFTV1 | null {
       return null;
     }
 
+    console.log("using contract", contractAddress);
+
     try {
       let signerOrProvider: ethers.Signer | ethers.providers.Provider =
         provider;
