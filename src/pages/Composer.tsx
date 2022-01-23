@@ -13,12 +13,14 @@ if (!TOKEN_MINT_PRICE) {
 
 const TOKEN_MINT_PRICE_N = Number(TOKEN_MINT_PRICE);
 
-let VALUE_MINT: ethers.BigNumberish;
+let VALUE_MINT: ethers.BigNumber;
 if (TOKEN_MINT_PRICE_N < 1) {
   VALUE_MINT = ethers.constants.WeiPerEther.div(1 / TOKEN_MINT_PRICE_N);
 } else {
   VALUE_MINT = ethers.constants.WeiPerEther.mul(TOKEN_MINT_PRICE_N);
 }
+//console.log("number minPrice", TOKEN_MINT_PRICE_N)
+//console.log("mint price", VALUE_MINT.toString(), ethers.utils.formatEther(VALUE_MINT))
 
 export default function ComposerPage() {
   const [publishing, setPublishing] = useState(false);

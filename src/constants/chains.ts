@@ -89,7 +89,5 @@ export function getChain(chainId?: string | number): IChainInfo {
     CHAIN_INFO[Number(chainId) as SupportedChainId] ||
     CHAIN_INFO[DEFAULT_CHAIN];
 
-  console.log("using chain", chain, chainId);
-
   return chain;
 }
