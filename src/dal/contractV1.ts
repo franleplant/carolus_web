@@ -10,7 +10,7 @@ import {
 } from "react-query";
 
 import type { CarolusNFTV1 } from "typechain/CarolusNFTV1.d";
-import { useContractV1 } from "hooks/contract";
+import { useContractContext } from "components/Provider/Contract";
 
 //export function usePrevious<T>(value: T): T | undefined {
 //const valueRef = useRef(value)
@@ -78,7 +78,7 @@ export function calcPaging(
 }
 
 export function useNewsSupply(): UseQueryResult<{ supply: number }> {
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
   return useQuery({
     queryKey: "news_supply",
     enabled: !!contract,
@@ -91,7 +91,7 @@ export function useNewsSupply(): UseQueryResult<{ supply: number }> {
 }
 
 export function useNewsItem(index: number): UseQueryResult<INewsItem> {
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
 
   return useQuery({
     queryKey: ["news", index],
@@ -109,7 +109,7 @@ export function usePublishMint(): UseMutationResult<
   unknown,
   { content: string }
 > {
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
   const queryClient = useQueryClient();
   return useMutation(
     async ({ content }) => {
@@ -133,7 +133,7 @@ export function usePublishMint(): UseMutationResult<
 export function useVotes(
   tokenId?: number
 ): UseQueryResult<[upvotes: number, downvotes: number]> {
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
 
   return useQuery({
     queryKey: `votes/${tokenId}`,
@@ -155,7 +155,7 @@ export function useUserDidVote(
   userAddress: string | undefined,
   tokenId: number | undefined
 ): UseQueryResult<[didUpvote: boolean, didDownvote: boolean]> {
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
 
   return useQuery({
     queryKey: ["user-votes", tokenId, userAddress],
@@ -184,7 +184,7 @@ export function useUpvote(): UseMutationResult<
   { tokenId: number }
 > {
   const queryClient = useQueryClient();
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
   return useMutation(
     async ({ tokenId }) => {
       invariant(contract, "contract is not defined");
@@ -211,7 +211,7 @@ export function useDownvote(): UseMutationResult<
   { tokenId: number }
 > {
   const queryClient = useQueryClient();
-  const contract = useContractV1();
+  const { contractV1: contract } = useContractContext();
   return useMutation(
     async ({ tokenId }) => {
       invariant(contract);

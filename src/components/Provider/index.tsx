@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import getLibrary from "getLibrary";
 import { useChain, useEagerConnect } from "hooks/web3";
 import { SupportedChainId } from "constants/chains";
+import ContractProvider from "./Contract";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,9 @@ export default function Providers(props: IProps) {
     <QueryClientProvider client={queryClient}>
       <Web3ReactProvider getLibrary={getLibrary}>
         <Web3Manager>
-          <DefaultRpcProvider>{props.children}</DefaultRpcProvider>
+          <DefaultRpcProvider>
+            <ContractProvider>{props.children}</ContractProvider>
+          </DefaultRpcProvider>
         </Web3Manager>
       </Web3ReactProvider>
     </QueryClientProvider>
