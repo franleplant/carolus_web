@@ -8,7 +8,7 @@ import { useProvider } from "components/Provider";
 import { useWeb3Session } from "hooks/web3";
 
 export function useContractV1(): CarolusNFTV1 | null {
-  const { account, library, chainId } = useWeb3Session();
+  const { account, library } = useWeb3Session();
   const chain = getChain();
   const { provider } = useProvider();
   const contractAddress = chain.contractAddress;
@@ -34,5 +34,5 @@ export function useContractV1(): CarolusNFTV1 | null {
       console.log("error instantiating contract", err);
       return null;
     }
-  }, [provider, chainId, account, contractAddress, library]);
+  }, [provider, account, contractAddress, library]);
 }

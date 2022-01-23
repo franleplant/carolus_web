@@ -10,6 +10,7 @@ export default function Home() {
   const navigate = useNavigate();
   const params = useParams();
   const page = Number(params.page || 0);
+  // eslint-disable-next-line  @typescript-eslint/no-unused-vars
   const [pageSize, setPageSize] = useState(20);
 
   const { isLoading, data } = useNewsSupply();

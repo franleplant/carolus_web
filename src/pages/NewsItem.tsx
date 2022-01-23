@@ -9,7 +9,6 @@ import {
 } from "dal/contractV1";
 import { useParams } from "react-router-dom";
 import invariant from "ts-invariant";
-import { truncateText } from "components/NewsItemSummary";
 import Account from "components/Account";
 import Button from "components/Button";
 import { useWeb3Session } from "hooks/web3";

@@ -34,7 +34,7 @@ export default function Providers(props: IProps) {
 
 export function Web3Manager({ children }: { children: any }) {
   const { chainId } = useWeb3React();
-  const { tried, error } = useEagerConnect();
+  const { error } = useEagerConnect();
 
   if (chainId) {
     const chain = SupportedChainId[Number(chainId)];

@@ -12,7 +12,7 @@ export interface IProps {
 
 export default function NewsItemSummary(props: IProps) {
   const navigate = useNavigate();
-  const { isLoading, data: news } = useNewsItem(props.index);
+  const { data: news } = useNewsItem(props.index);
 
   return (
     <div
